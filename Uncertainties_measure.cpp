@@ -4,12 +4,13 @@
 #include <fstream>
 #include <ctype.h>
 #include <string>
+#include <clocale>
 
 using namespace std;
 
-string vocabulario = "abcdefghijklmnñopqrstuvwxyz., ";
+string vocabulario = "abcdefghijklmnopqrstuvwxyz., ";
 
-string leer()
+string read()
 {
     ifstream ficheroEntrada;
     string frase;
@@ -24,6 +25,15 @@ string leer()
     }
     //cout << "Frase leida: " << frase << endl;
     return frase;
+}
+
+void write(string frase)
+{
+    ofstream fh;
+    fh.open("dataGenerado.txt");
+    fh << frase;
+    fh.close();
+    return;
 }
 
 vector<double> frecuencia(string frase)
@@ -55,9 +65,9 @@ double Desviacion(vector<double> A, double &media)
     
     for(int i = 0; i < A.size();i++)
     {
-        t = t + pow(abs(A[i] - Media),2);
+        t = t + pow(A[i] - Media,2);
     }
-    cout<<"Desviacion: "<<sqrt(t/A.size())<<endl;
+    //cout<<"Desviacion: "<<sqrt(t/A.size())<<endl;
     return sqrt(t/A.size());
 }
 
@@ -98,20 +108,44 @@ void Entropia(vector<double> v)
     cout<<"Shannon: "<<Shannon(v)<<endl;
 }
 
+void GeneradorTexto(vector<double> frecuencia)
+{
+    srand(time(NULL));
+    string texto="";
+    for(int i=0;i < 4000;i++)
+    {
+        texto = texto + vocabulario[rand()%(vocabulario.size())];
+    }
+
+    write(texto);
+
+    texto = "";
+    for(int i=0;i < 4000;i++)
+    {
+        texto = texto + vocabulario[rand()%(vocabulario.size())];
+    }
+
+    //cout<<texto<<endl;
+    return;
+}
+
 
 
 
 int main()
 {
-    vector<double> fr = frecuencia(leer());
+    setlocale(LC_CTYPE,"Spanish");
+    vector<double> fr = frecuencia(read());
     fr = Normalizar(fr);
-    for(int i=0;i<fr.size();i++)
+    /*for(int i=0;i<fr.size();i++)
     {
         cout<<fr[i]<<" ";
     }
     cout<<endl;
-
+    */
     Entropia(fr);
+
+    GeneradorTexto(fr);
 
     return 0;
 }

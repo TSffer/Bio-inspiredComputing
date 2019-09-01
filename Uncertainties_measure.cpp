@@ -4,18 +4,18 @@
 #include <fstream>
 #include <ctype.h>
 #include <string>
-#include <clocale>
+#include <time.h>
 
 using namespace std;
 
 string vocabulario = "abcdefghijklmnopqrstuvwxyz., ";
 
-string read()
+string read(string filename)
 {
     ifstream ficheroEntrada;
     string frase;
 
-    ficheroEntrada.open ("data.txt");
+    ficheroEntrada.open(filename);
     getline(ficheroEntrada, frase);
     ficheroEntrada.close();
 
@@ -27,10 +27,10 @@ string read()
     return frase;
 }
 
-void write(string frase)
+void write(string frase,string filename)
 {
     ofstream fh;
-    fh.open("dataGenerado.txt");
+    fh.open(filename);
     fh << frase;
     fh.close();
     return;
@@ -108,6 +108,11 @@ void Entropia(vector<double> v)
     cout<<"Shannon: "<<Shannon(v)<<endl;
 }
 
+double Porcentaje(double N,double P)
+{
+    return N*P/100;
+}
+
 void GeneradorTexto(vector<double> frecuencia)
 {
     srand(time(NULL));
@@ -116,26 +121,51 @@ void GeneradorTexto(vector<double> frecuencia)
     {
         texto = texto + vocabulario[rand()%(vocabulario.size())];
     }
-
-    write(texto);
+    write(texto,"dataGenerado1.txt");
+    
+    string vb = "";
+    for(int i=0;i < frecuencia.size() ;i++)
+    {
+        for(int j=0;j<frecuencia[i];j++)
+        {
+            vb = vb + vocabulario[i];
+        }
+    }
 
     texto = "";
     for(int i=0;i < 4000;i++)
     {
-        texto = texto + vocabulario[rand()%(vocabulario.size())];
+        texto = texto + vb[rand()%(vb.size())];
     }
-
-    //cout<<texto<<endl;
+    write(texto,"dataGenerado2.txt");
     return;
 }
 
-
+void permutar(int p)
+{
+    string texto = read("data.txt");
+    string tp = "";
+    int pos1=0,pos2=0;
+    for(int i = 0;i < p;i++)
+    {
+        pos1 = rand()%(texto.size()-1);
+        pos2 = rand()%(texto.size()-1);
+        tp[0] = texto[pos1];
+        texto[pos1] = texto[pos2];
+        texto[pos2] = tp[0];
+    }
+    vector<double> fr = frecuencia(texto);
+    fr = Normalizar(fr);
+    Entropia(fr);
+}
 
 
 int main()
 {
-    setlocale(LC_CTYPE,"Spanish");
-    vector<double> fr = frecuencia(read());
+    vector<double> fr = frecuencia(read("data.txt"));
+
+    GeneradorTexto(fr);
+
     fr = Normalizar(fr);
     /*for(int i=0;i<fr.size();i++)
     {
@@ -144,8 +174,7 @@ int main()
     cout<<endl;
     */
     Entropia(fr);
-
-    GeneradorTexto(fr);
+    permutar(4000);
 
     return 0;
 }
